@@ -47,7 +47,7 @@ autoinstall:
       EOF
     - (
       curtin in-target --target /target --
-        sh -c '"echo curtin in-target" ;
+        sh -c 'echo "curtin in-target" ;
           netplan generate ;
           netplan apply ;
           systemctl enable systemd-networkd ;
