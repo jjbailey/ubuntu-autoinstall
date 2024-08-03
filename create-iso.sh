@@ -32,13 +32,12 @@ mkdir -p source-files || exit 1
 [ -d source-files/boot ] || 7z -y x $PROJECT_HOME/$ISO -osource-files
 
 cd source-files
+[ -d boot/grub ] || exit 1
 [ -d '[BOOT]' ] && mv '[BOOT]' ../BOOT
 
 mkdir -p server || exit 1
 cp -p $PROJECT_HOME/meta-data.yml server/meta-data
 cp -p $PROJECT_HOME/user-data.yml server/user-data
-
-[ -d boot/grub ] || exit 1
 
 # Note the hardcoded grub.cfg offsets
 
