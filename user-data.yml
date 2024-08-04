@@ -34,7 +34,7 @@ autoinstall:
   late-commands:
     - find /target/etc/netplan -name "*.yaml" -delete
     - |
-      cat << EOF | sudo tee /target/etc/netplan/50-cloud-init.yaml
+      cat << EOF | tee /target/etc/netplan/50-cloud-init.yaml
       network:
         version: 2
         renderer: networkd
@@ -48,6 +48,7 @@ autoinstall:
     - (
       curtin in-target --target /target --
         sh -c 'echo "curtin in-target" ;
+          chmod 600 /etc/netplan/50-cloud-init.yaml ;
           netplan generate ;
           netplan apply ;
           systemctl enable systemd-networkd ;
