@@ -1,0 +1,200 @@
+#cloud-config
+# vim: syntax=yaml
+
+autoinstall:
+  version: 1
+
+  locale: en_US.UTF-8
+
+  keyboard:
+    layout: us
+
+  identity:
+    hostname: ubuntu
+    username: ubuntu
+    password: $5$28427$QmhqAoZBCY594ucq7sfTgTyhhlpV2hW4LeGcSXvIKQA
+
+  ssh:
+    allow-pw: true
+    install-server: true
+
+  apt:
+    geoip: true
+    primary:
+      - arches: [default]
+        uri: http://us.archive.ubuntu.com/ubuntu/
+
+  packages:
+    - build-essential
+    - openvswitch-switch-dpdk
+
+  package_update: false
+  package_upgrade: false
+
+  late-commands:
+    - find /target/etc/netplan -name "*.yaml" -delete
+    - |
+      cat << EOF | tee /target/etc/netplan/50-cloud-init.yaml
+      network:
+        version: 2
+        renderer: networkd
+        ethernets:
+          id1:
+            match:
+              name: e*
+            set-name: eth0
+            dhcp4: true
+      EOF
+    - (
+      curtin in-target --target /target --
+        sh -c 'echo "curtin in-target" ;
+          chmod 600 /etc/netplan/50-cloud-init.yaml ;
+          netplan generate ;
+          netplan apply ;
+          systemctl enable systemd-networkd ;
+          systemctl enable ssh ;
+          exit 0'
+      )
+
+  storage:
+    config:
+      - id: root-disk
+        type: disk
+        preserve: false
+        wipe: superblock-recursive
+        ptable: gpt
+        grub_device: true
+
+      - id: bios_boot_part
+        number: 1
+        type: partition
+        size: 1MB
+        device: root-disk
+        flag: bios_grub
+
+      - id: boot_part
+        number: 2
+        type: partition
+        size: 1G
+        device: root-disk
+        preserve: false
+
+      - id: lvm_part
+        number: 3
+        type: partition
+        size: -1
+        device: root-disk
+        preserve: false
+
+      - id: vg1
+        type: lvm_volgroup
+        name: vg1
+        devices: [lvm_part]
+
+      - id: fs_boot_part
+        type: format
+        fstype: ext4
+        volume: boot_part
+      - id: mount_boot
+        type: mount
+        device: fs_boot_part
+        path: /boot
+
+      - id: lv_root
+        type: lvm_partition
+        volgroup: vg1
+        name: lv_root
+        size: 6G
+      - id: fs_root
+        type: format
+        fstype: ext4
+        volume: lv_root
+      - id: mount_root
+        type: mount
+        device: fs_root
+        path: /
+
+      - id: lv_swap
+        type: lvm_partition
+        volgroup: vg1
+        name: lv_swap
+        size: 4G
+      - id: fs_swap
+        type: format
+        fstype: swap
+        volume: lv_swap
+      - id: mount_swap
+        type: mount
+        device: fs_swap
+        path: none
+
+      - id: lv_tmp
+        type: lvm_partition
+        volgroup: vg1
+        name: lv_tmp
+        size: 4G
+      - id: fs_tmp
+        type: format
+        fstype: ext4
+        volume: lv_tmp
+      - id: mount_tmp
+        type: mount
+        device: fs_tmp
+        path: /tmp
+
+      - id: lv_home
+        type: lvm_partition
+        volgroup: vg1
+        name: lv_home
+        size: 4G
+      - id: fs_home
+        type: format
+        fstype: ext4
+        volume: lv_home
+      - id: mount_home
+        type: mount
+        device: fs_home
+        path: /home
+
+      - id: lv_var
+        type: lvm_partition
+        volgroup: vg1
+        name: lv_var
+        size: 4G
+      - id: fs_var
+        type: format
+        fstype: ext4
+        volume: lv_var
+      - id: mount_var
+        type: mount
+        device: fs_var
+        path: /var
+
+      - id: lv_log
+        type: lvm_partition
+        volgroup: vg1
+        name: lv_log
+        size: 4G
+      - id: fs_log
+        type: format
+        fstype: ext4
+        volume: lv_log
+      - id: mount_log
+        type: mount
+        device: fs_log
+        path: /var/log
+
+      - id: lv_audit
+        type: lvm_partition
+        volgroup: vg1
+        name: lv_audit
+        size: 1G
+      - id: fs_audit
+        type: format
+        fstype: ext4
+        volume: lv_audit
+      - id: mount_audit
+        type: mount
+        device: fs_audit
+        path: /var/log/audit
+
