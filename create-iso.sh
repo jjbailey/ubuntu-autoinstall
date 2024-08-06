@@ -13,9 +13,10 @@ unset CDPATH
 umask 022
 
 # Modify as necessary
-ISO="ubuntu-22.04.4-live-server-amd64.iso"
-ISOURL="https://releases.ubuntu.com/22.04/$ISO"
-ISODIR="ubuntu-22.04-autoinstall"
+VERSION="22.04.4"
+ISO="ubuntu-$VERSION-live-server-amd64.iso"
+ISOURL="https://releases.ubuntu.com/$VERSION/$ISO"
+ISODIR="ubuntu-$VERSION-autoinstall"
 NEWISO="$ISODIR.iso"
 
 wget -c $ISOURL
@@ -59,7 +60,7 @@ cp -p $PROJECT_HOME/user-data.yml server/user-data
 # xorriso -indev $PROJECT_HOME/$ISO -report_el_torito as_mkisofs
 
 xorriso -as mkisofs -r \
-    -V 'Ubuntu-Server 22.04.4 LTS AUTO' \
+    -V "Ubuntu-Server $VERSION LTS AUTO" \
     -o $PROJECT_HOME/$NEWISO \
     --grub2-mbr ../BOOT/1-Boot-NoEmul.img \
     -partition_offset 16 \
