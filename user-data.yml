@@ -12,6 +12,7 @@ autoinstall:
   identity:
     hostname: ubuntu
     username: ubuntu
+    realname: Ubuntu
     password: $5$28427$QmhqAoZBCY594ucq7sfTgTyhhlpV2hW4LeGcSXvIKQA
 
   ssh:
@@ -60,31 +61,31 @@ autoinstall:
     config:
       - id: root-disk
         type: disk
-        preserve: false
-        wipe: superblock-recursive
-        ptable: gpt
         grub_device: true
+        preserve: false
+        ptable: gpt
+        wipe: superblock-recursive
 
       - id: bios_boot_part
         number: 1
         type: partition
-        size: 1MB
         device: root-disk
         flag: bios_grub
+        size: 1M
 
       - id: boot_part
         number: 2
         type: partition
-        size: 1G
         device: root-disk
         preserve: false
+        size: 1G
 
       - id: lvm_part
         number: 3
         type: partition
-        size: -1
         device: root-disk
         preserve: false
+        size: -1
 
       - id: vg1
         type: lvm_volgroup
