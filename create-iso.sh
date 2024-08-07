@@ -44,6 +44,8 @@ cp -p $PROJECT_HOME/user-data.yml server/user-data
 
 (
     cd boot/grub
+    grep -q "Autoinstall Ubuntu Server" grub.cfg && exit 0
+
     (
         head -7 grub.cfg
         echo 'menuentry "Autoinstall Ubuntu Server" {'
