@@ -29,6 +29,16 @@ if [ ! -f "$ISO" ] ; then
     exit 1
 fi
 
+if [ ! -f $PROJECT_HOME/meta-data.yml ] ; then
+    echo "$PROJECT_HOME/meta-data.yml is missing"
+    exit 1
+fi
+
+if [ ! -f $PROJECT_HOME/user-data.yml ] ; then
+    echo "$PROJECT_HOME/user-data.yml is missing"
+    exit 1
+fi
+
 mkdir -p $ISODIR || exit 1
 cd $ISODIR
 mkdir -p source-files || exit 1
@@ -40,18 +50,19 @@ cd source-files
 [ -d '[BOOT]' ] && mv '[BOOT]' ../BOOT
 
 mkdir -p server || exit 1
+
 cp -p $PROJECT_HOME/meta-data.yml server/meta-data
 cp -p $PROJECT_HOME/user-data.yml server/user-data
 
-# Note the hardcoded grub.cfg offsets
-
 (
+    # Note the hardcoded grub.cfg offsets
+
     cd boot/grub
-    grep -q "Autoinstall Ubuntu Server" grub.cfg && exit 0
+    grep -q "Ubuntu Server Autoinstall" grub.cfg && exit 0
 
     (
         head -7 grub.cfg
-        echo 'menuentry "Autoinstall Ubuntu Server" {'
+        echo 'menuentry "Ubuntu Server Autoinstall" {'
         echo -e '\tset gfxpayload=keep'
         echo -e '\tlinux   /casper/vmlinuz autoinstall ds=nocloud\;s=/cdrom/server/  ---'
         echo -e '\tinitrd  /casper/initrd'
