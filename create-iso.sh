@@ -8,6 +8,9 @@
 # Hint:
 # openssl passwd -5 -salt $RANDOM ubuntu
 
+# To check which firmware booted:
+# [ -d /sys/firmware/efi ] && echo UEFI || echo BIOS
+
 PROJECT_HOME=$(pwd)
 unset CDPATH
 umask 022

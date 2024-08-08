@@ -5,7 +5,7 @@ Create an ISO for Ubuntu 22.04 unattended auto-install.
 ### Goals
 
 - Create an ISO that boots itself with a cloud-config auto-installer.
-- Publish an example of a cloud-config file that is hard to get right and easy to get wrong.
+- Publish examples of cloud-config files for BIOS and UEFI boot with LVM.
 
 ### Required packages (Ubuntu)
 
@@ -16,9 +16,15 @@ Create an ISO for Ubuntu 22.04 unattended auto-install.
 
 ### Build
 
-The ```create-iso.sh``` script downloads the Ubuntu 22.04 ISO, extracts the contents, adds a cloud-config with meta-data.yml, user-data.yml, and a grub.cfg entry.  The script then creates a new, bootable ISO.
+The `create-iso.sh` script downloads a version of the Ubuntu 22.04 ISO, extracts the contents, adds a cloud-config with meta-data.yml, user-data.yml, and a grub.cfg entry.  The script then creates a new, bootable ISO.
 
-The ```user-data.yml``` file configures BIOS boot and has the following layout (40GB test run):
+To build an ISO:
+
+ 1. Copy either `user-data-bios.yml` or `user-data-efi.yml` to `user-data.yml`
+ 2. Adjust the script and yaml files to meet your needs
+ 3. Run `./create-iso.sh`
+
+The `user-data.yml` file creates a system which should look something like the following (40GB test run):
 ```
 ubuntu@ubuntu:~$ lsblk /dev/sda
 NAME             MAJ:MIN RM SIZE RO TYPE MOUNTPOINTS
@@ -40,18 +46,9 @@ ubuntu@ubuntu:~$ sudo pvs
 
 ```
 
-Adjust the script and yaml files to fit your needs.
-
-The ubuntu user's password is guessable (cough).
-
-### TODO
-
-- Create an EFI boot ISO
-- Create an ISO that boots BIOS or EFI
-
 ### CREDITS
 
 Special credit to Dr. Donald Kinghorn who did all the p7zip and xorriso heavy lifting.
 
-Credit to many others who posted sample configs, both working and broken, for the various ideas they presented.
+Credit to many others who posted sample configs for the various ideas they presented.
 
