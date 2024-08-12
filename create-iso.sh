@@ -42,7 +42,6 @@ fi
 mkdir -p $ISODIR || exit 1
 cd $ISODIR
 mkdir -p source-files || exit 1
-
 [ -d source-files/boot ] || 7z -y x $PROJECT_HOME/$ISO -osource-files
 
 cd source-files
@@ -50,25 +49,26 @@ cd source-files
 [ -d '[BOOT]' ] && mv '[BOOT]' ../BOOT
 
 mkdir -p server || exit 1
-
 cp -p $PROJECT_HOME/meta-data.yml server/meta-data
 cp -p $PROJECT_HOME/user-data.yml server/user-data
 
 (
-    # Note the hardcoded grub.cfg offsets
-
     cd boot/grub
     grep -q "Ubuntu Server Autoinstall" grub.cfg && exit 0
 
+    FIRSTITEM=$(grep -n -m1 '^menuentry' grub.cfg | awk -F: '{ print $1 }')
+    INSERTHERE=$((FIRSTITEM - 1))
+
     (
-        head -7 grub.cfg
+        head -$INSERTHERE grub.cfg
         echo 'menuentry "Ubuntu Server Autoinstall" {'
         echo -e '\tset gfxpayload=keep'
         echo -e '\tlinux   /casper/vmlinuz autoinstall ds=nocloud\;s=/cdrom/server/  ---'
         echo -e '\tinitrd  /casper/initrd'
         echo '}'
-        tail -n +8 grub.cfg
+        tail -n +$FIRSTITEM grub.cfg
     ) > grub.cfg.new
+
     mv -b grub.cfg.new grub.cfg
 )
 
