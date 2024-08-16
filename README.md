@@ -20,9 +20,11 @@ The `create-iso.sh` script downloads a version of the Ubuntu 22.04 ISO, extracts
 
 To build an ISO:
 
- 1. Copy either `user-data-bios.yml` or `user-data-efi.yml` to `user-data.yml`
+ 1. Copy one of `user-data-bios.yml`, `user-data-efi.yml`, `user-data-bios+efi.yml` to `user-data.yml`
  2. Adjust the script and yaml files to meet your needs
  3. Run `./create-iso.sh`
+
+The `user-data-bios+efi.yml` file auto-configures itself for either BIOS *or* UEFI, not both.
 
 The `user-data.yml` file creates a system which should look something like the following (40GB test run):
 ```
@@ -48,7 +50,8 @@ ubuntu@ubuntu:~$ sudo pvs
 
 ### CREDITS
 
-Special credit to Dr. Donald Kinghorn who did all the p7zip and xorriso heavy lifting.
+Credit to Dr. Donald Kinghorn who did all the p7zip and xorriso heavy lifting.
 
 Credit to many others who posted sample configs for the various ideas they presented.
 
+Credit to Andrew Lowther for the early-commands cleverness.

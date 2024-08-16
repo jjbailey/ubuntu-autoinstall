@@ -74,10 +74,10 @@ autoinstall:
         flag: bios_grub
         size: 1M
 
-      - id: bios_boot
+      - id: os_boot
         number: 2
         type: partition
-        grub_device: false
+        grub_device: GRUB_DEV
         device: root-disk
         preserve: false
         size: 1G
@@ -192,11 +192,20 @@ autoinstall:
         device: fs_audit
         path: /var/log/audit
 
-      - id: fs_bios_boot
+      - id: fs_os_boot
         type: format
-        fstype: ext4
-        volume: bios_boot
-      - id: mount_bios_boot
+        fstype: BOOT_FS
+        volume: os_boot
+      - id: mount_os_boot
         type: mount
-        device: fs_bios_boot
-        path: /boot
+        device: fs_os_boot
+        path: BOOT_PATH
+
+  early-commands:
+    - |
+      if [ -e '/sys/firmware/efi' ] ; then
+        sed -i -e 's,GRUB_DEV,true,' -e 's,BOOT_FS,vfat,' -e 's,BOOT_PATH,/boot/efi,' /autoinstall.yaml
+      else
+        sed -i -e 's,GRUB_DEV,false,' -e 's,BOOT_FS,ext4,' -e 's,BOOT_PATH,/boot,' /autoinstall.yaml
+      fi
+      true

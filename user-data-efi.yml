@@ -56,6 +56,7 @@ autoinstall:
           systemctl enable ssh ;
           exit 0'
       )
+    - cp -p /autoinstall.yaml /target/root
 
   storage:
     config:
