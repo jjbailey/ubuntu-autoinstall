@@ -16,7 +16,13 @@ unset CDPATH
 umask 022
 
 # Modify as necessary
-VERSION="22.04.4"
+
+# jammy
+# VERSION="22.04.4"
+
+# noble
+VERSION="24.04"
+
 ISO="ubuntu-$VERSION-live-server-amd64.iso"
 ISOURL="https://releases.ubuntu.com/$VERSION/$ISO"
 ISODIR="ubuntu-$VERSION-autoinstall"
