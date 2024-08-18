@@ -92,7 +92,8 @@ autoinstall:
       - id: vg1
         type: lvm_volgroup
         name: vg1
-        devices: [lvm_part]
+        devices:
+          - lvm_part
 
       - id: lv_root
         type: lvm_partition
