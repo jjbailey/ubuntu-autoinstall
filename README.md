@@ -1,6 +1,6 @@
 # ubuntu-autoinstall
 
-Create an ISO for Ubuntu 22.04 unattended auto-install.
+Create an ISO for Ubuntu LTS unattended auto-install.
 
 ### Goals
 
@@ -16,7 +16,7 @@ Create an ISO for Ubuntu 22.04 unattended auto-install.
 
 ### Build
 
-The `create-iso.sh` script downloads a version of the Ubuntu 22.04 ISO, extracts the contents, adds a cloud-config with meta-data.yml, user-data.yml, and a grub.cfg entry.  The script then creates a new, bootable ISO.
+The `create-iso.sh` script downloads a version of the Ubuntu LTS ISO, extracts the contents, adds a cloud-config with meta-data.yml, user-data.yml, and a grub.cfg entry.  The script then creates a new, bootable ISO.
 
 To build an ISO:
 
@@ -52,6 +52,6 @@ ubuntu@ubuntu:~$ sudo pvs
 
 Credit to Dr. Donald Kinghorn who did all the p7zip and xorriso heavy lifting.
 
-Credit to many others who posted sample configs for the various ideas they presented.
-
 Credit to Andrew Lowther for the early-commands cleverness.
+
+Credit to many others who posted sample configs for the various ideas they presented.
