@@ -32,6 +32,15 @@ autoinstall:
   package_update: false
   package_upgrade: false
 
+  early-commands:
+    - |
+      if [ -e '/sys/firmware/efi' ] ; then
+        sed -i -e 's,GRUB_DEV,true,' -e 's,BOOT_FS,vfat,' -e 's,BOOT_PATH,/boot/efi,' /autoinstall.yaml
+      else
+        sed -i -e 's,GRUB_DEV,false,' -e 's,BOOT_FS,ext4,' -e 's,BOOT_PATH,/boot,' /autoinstall.yaml
+      fi
+      true
+
   late-commands:
     - find /target/etc/netplan -name "*.yaml" -delete
     - |
@@ -201,12 +210,3 @@ autoinstall:
         type: mount
         device: fs_os_boot
         path: BOOT_PATH
-
-  early-commands:
-    - |
-      if [ -e '/sys/firmware/efi' ] ; then
-        sed -i -e 's,GRUB_DEV,true,' -e 's,BOOT_FS,vfat,' -e 's,BOOT_PATH,/boot/efi,' /autoinstall.yaml
-      else
-        sed -i -e 's,GRUB_DEV,false,' -e 's,BOOT_FS,ext4,' -e 's,BOOT_PATH,/boot,' /autoinstall.yaml
-      fi
-      true

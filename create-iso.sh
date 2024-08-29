@@ -21,7 +21,7 @@ umask 022
 # VERSION="22.04.4"
 
 # noble
-VERSION="24.04"
+VERSION="24.04.1"
 
 ISO="ubuntu-$VERSION-live-server-amd64.iso"
 ISOURL="https://releases.ubuntu.com/$VERSION/$ISO"
