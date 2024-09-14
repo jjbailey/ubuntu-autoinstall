@@ -27,6 +27,7 @@ To build an ISO:
 The `user-data-bios+efi.yml` file auto-configures itself for either BIOS *or* UEFI, not both.
 
 The `user-data.yml` file creates a system which should look something like the following (40GB test run):
+
 ```
 ubuntu@ubuntu:~$ lsblk /dev/sda
 NAME             MAJ:MIN RM SIZE RO TYPE MOUNTPOINTS

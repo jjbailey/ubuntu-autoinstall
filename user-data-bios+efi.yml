@@ -15,6 +15,16 @@ autoinstall:
     realname: Ubuntu
     password: $5$28427$QmhqAoZBCY594ucq7sfTgTyhhlpV2hW4LeGcSXvIKQA
 
+  network:
+    version: 2
+    renderer: networkd
+    ethernets:
+      nics:
+        match:
+          name: en*
+        set-name: eth0
+        dhcp4: true
+
   ssh:
     allow-pw: true
     install-server: true
@@ -42,25 +52,9 @@ autoinstall:
       true
 
   late-commands:
-    - find /target/etc/netplan -name "*.yaml" -delete
-    - |
-      cat << EOF | tee /target/etc/netplan/50-cloud-init.yaml
-      network:
-        version: 2
-        renderer: networkd
-        ethernets:
-          id1:
-            match:
-              name: e*
-            set-name: eth0
-            dhcp4: true
-      EOF
     - (
       curtin in-target --target /target --
         sh -c 'echo "curtin in-target" ;
-          chmod 600 /etc/netplan/50-cloud-init.yaml ;
-          netplan generate ;
-          netplan apply ;
           systemctl enable systemd-networkd ;
           systemctl enable ssh ;
           exit 0'
