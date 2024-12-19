@@ -18,7 +18,7 @@ umask 022
 # Modify as necessary
 
 # jammy
-# VERSION="22.04.4"
+# VERSION="22.04.5"
 
 # noble
 VERSION="24.04.1"
