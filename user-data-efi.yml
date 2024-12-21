@@ -19,10 +19,9 @@ autoinstall:
     version: 2
     renderer: networkd
     ethernets:
-      nics:
+      id0:
         match:
-          name: en*
-        set-name: eth0
+          name: e*0
         dhcp4: true
 
   ssh:

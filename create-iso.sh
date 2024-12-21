@@ -30,7 +30,7 @@ NEWISO="$ISODIR.iso"
 
 wget -c $ISOURL
 
-if [ ! -f "$ISO" ] ; then
+if [ ! -f "$PROJECT_HOME/$ISO" ] ; then
     echo "failed to wget $ISO"
     exit 1
 fi
