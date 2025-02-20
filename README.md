@@ -20,9 +20,9 @@ The `create-iso.sh` script downloads a version of the Ubuntu LTS ISO, extracts t
 
 To build an ISO:
 
-1.  Copy one of `user-data-bios.yml`, `user-data-efi.yml`, `user-data-bios+efi.yml` to `user-data.yml`
-2.  Adjust the script and yaml files to meet your needs
-3.  Run `./create-iso.sh`
+1. Copy one of `user-data-bios.yml`, `user-data-efi.yml`, `user-data-bios+efi.yml` to `user-data.yml`
+2. Adjust the script and yaml files to meet your needs
+3. Run `./create-iso.sh`
 
 The `user-data-bios+efi.yml` file auto-configures itself for either BIOS _or_ UEFI, not both.
 
