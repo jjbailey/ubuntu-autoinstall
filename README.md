@@ -49,7 +49,7 @@ ubuntu@ubuntu:~$ sudo pvs
 
 ```
 
-### CREDITS
+### Credits
 
 Credit to Dr. Donald Kinghorn who did all the p7zip and xorriso heavy lifting.
 
