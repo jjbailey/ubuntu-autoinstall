@@ -44,10 +44,10 @@ autoinstall:
   late-commands:
     - (
       curtin in-target --target /target --
-        sh -c 'echo "curtin in-target" ;
-          systemctl enable systemd-networkd ;
-          systemctl enable ssh ;
-          exit 0'
+      sh -c 'echo "curtin in-target" ;
+      systemctl enable systemd-networkd ;
+      systemctl enable ssh ;
+      exit 0'
       )
     - cp -p /autoinstall.yaml /target/root
 
