@@ -108,6 +108,9 @@ EOF
 
 build_iso()
 {
+    # multiple boot images (BIOS and EFI) with -eltorito-alt-boot each
+    # must have its own -b, -no-emul-boot, etc., in this exact sequence
+
     echo "Building ISO image..."
 
     xorriso -as mkisofs \
