@@ -112,20 +112,27 @@ build_iso()
     # must have its own -b, -no-emul-boot, etc., in this exact sequence
 
     echo "Building ISO image..."
+    cd source-files
 
-    xorriso -as mkisofs \
-        -V "Ubuntu-Server ${VERSION} LTS AUTO" \
-        -o "${PROJECT_HOME}/${NEWISO}" \
-        -c /boot.catalog \
-        -b /boot/grub/i386-pc/eltorito.img \
-        -no-emul-boot -boot-load-size 4 -boot-info-table \
-        -eltorito-alt-boot \
-        -e /EFI/boot/bootx64.efi \
+    xorriso -as mkisofs -r \
+        -V "Ubuntu-Server $VERSION LTS AUTO" \
+        -o "$PROJECT_HOME/$NEWISO" \
+        --grub2-mbr ../BOOT/1-Boot-NoEmul.img \
+        -partition_offset 16 \
+        --mbr-force-bootable \
+        -append_partition 2 28732ac11ff8d211ba4b00a0c93ec93b ../BOOT/2-Boot-NoEmul.img \
+        -appended_part_as_gpt \
+        -iso_mbr_part_type a2a0d0ebe5b9334487c068b6b72699c7 \
+        -c '/boot.catalog' \
+        -b '/boot/grub/i386-pc/eltorito.img' \
         -no-emul-boot \
-        -isohybrid-gpt-basdat \
-        -iso-level 3 \
-        -joliet -rock \
-        source-files
+        -boot-load-size 4 \
+        -boot-info-table \
+        --grub2-boot-info \
+        -eltorito-alt-boot \
+        -e '--interval:appended_partition_2:::' \
+        -no-emul-boot \
+        .
 }
 
 main()
