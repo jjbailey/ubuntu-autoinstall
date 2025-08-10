@@ -47,6 +47,8 @@ autoinstall:
       sh -c 'echo "curtin in-target" ;
       systemctl enable systemd-networkd ;
       systemctl enable ssh ;
+      echo "ubuntu ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ubuntu ;
+      chmod 440 /etc/sudoers.d/ubuntu ;
       exit 0'
       )
     - cp -p /autoinstall.yaml /target/root
