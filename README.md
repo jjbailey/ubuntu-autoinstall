@@ -49,7 +49,3 @@ ubuntu@ubuntu:~$ sudo pvs
 
 ```
 
-### References
-
-https://en.wikipedia.org/wiki/GUID_Partition_Table#Partition_type_GUIDs<br>
-https://askubuntu.com/questions/1403546/ubuntu-22-04-build-iso-both-mbr-and-efi<br>
