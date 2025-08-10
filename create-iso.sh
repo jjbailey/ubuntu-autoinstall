@@ -95,7 +95,7 @@ patch_grub()
         head -n "${insert_line}" "${grub_cfg}"
         cat << EOF
 menuentry "Ubuntu Server Autoinstall" {
-    set gfxpayload=keep
+    set     gfxpayload=keep
     linux   /casper/vmlinuz autoinstall ds=nocloud\\;s=/cdrom/server/  ---
     initrd  /casper/initrd
 }
@@ -123,8 +123,8 @@ build_iso()
         -append_partition 2 28732ac11ff8d211ba4b00a0c93ec93b ../BOOT/2-Boot-NoEmul.img \
         -appended_part_as_gpt \
         -iso_mbr_part_type a2a0d0ebe5b9334487c068b6b72699c7 \
-        -c '/boot.catalog' \
-        -b '/boot/grub/i386-pc/eltorito.img' \
+        -c /boot.catalog \
+        -b /boot/grub/i386-pc/eltorito.img \
         -no-emul-boot \
         -boot-load-size 4 \
         -boot-info-table \
