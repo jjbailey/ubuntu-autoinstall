@@ -17,11 +17,15 @@ MNTDIR=$(mktemp -d /tmp/cidata.XXXXXX)
 
 cleanup()
 {
+    # Only try to unmount if it's still mounted (in case of script interruption)
     if mountpoint -q "$MNTDIR" ; then
         umount "$MNTDIR"
     fi
 
-    rmdir "$MNTDIR"
+    # Remove the mount directory if present
+    if [ -d "$MNTDIR" ] ; then
+        rmdir "$MNTDIR"
+    fi
 }
 
 trap cleanup EXIT
@@ -47,11 +51,24 @@ for f in meta-data.yml user-data.yml ; do
     fi
 
     echo "Copying $f..."
-    cp $f $MNTDIR/$(basename $f .yml)
+    cp "$f" "$MNTDIR/$(basename $f .yml)"
 done
 
 echo "Syncing..."
 sync
 
-echo "Done. Unmounting..."
-# (trap will clean up and unmount)
+echo "Unmounting image..."
+umount "$MNTDIR"
+
+echo "Checking image with fsck.fat..."
+if ! fsck.fat -nv "$IMG" ; then
+    echo "Image integrity check FAILED!"
+    exit 1
+fi
+
+# Clean up the mount dir (handled by trap, but for immediate clarity)
+if [ -d "$MNTDIR" ] ; then
+    rmdir "$MNTDIR"
+fi
+
+echo "Done. Image $IMG is ready and verified."
