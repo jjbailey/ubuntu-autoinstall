@@ -28,6 +28,8 @@ The `user-data-bios+efi.yml` file auto-configures itself for either BIOS *or* UE
 
 The `user-data.yml` file creates a system which should look something like the following (40GB test run):
 
+The `make-cidata.sh` script creates a floppy image for cloud-init and `ds=nocloud`.
+
 ```
 ubuntu@ubuntu:~$ lsblk /dev/sda
 NAME             MAJ:MIN RM SIZE RO TYPE MOUNTPOINTS
@@ -51,5 +53,5 @@ ubuntu@ubuntu:~$ sudo pvs
 
 ### References
 
-https://en.wikipedia.org/wiki/GUID_Partition_Table#Partition_type_GUIDs<br>
-https://askubuntu.com/questions/1403546/ubuntu-22-04-build-iso-both-mbr-and-efi<br>
+https://en.wikipedia.org/wiki/GUID_Partition_Table#Partition_type_GUIDs
+https://askubuntu.com/questions/1403546/ubuntu-22-04-build-iso-both-mbr-and-efi
