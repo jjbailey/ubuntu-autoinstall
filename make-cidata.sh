@@ -30,7 +30,7 @@ cleanup()
 
 trap cleanup EXIT
 
-if [[ -f $IMG ]] ; then
+if [ -f "$IMG" ] ; then
     echo "Removing old $IMG"
     rm -f "$IMG"
 fi
@@ -45,13 +45,15 @@ echo "Mounting image..."
 mount -o loop "$IMG" "$MNTDIR"
 
 for f in meta-data.yml user-data.yml ; do
-    if [[ ! -f $f ]] ; then
+    if [ ! -f "$f" ] ; then
         echo "Missing file: $f" >&2
         exit 1
     fi
 
     echo "Copying $f..."
-    cp "$f" "$MNTDIR/$(basename $f .yml)"
+    # Remove .yml extension for destination filename
+    base=$(basename "$f" .yml)
+    cp "$f" "$MNTDIR/$base"
 done
 
 echo "Syncing..."
