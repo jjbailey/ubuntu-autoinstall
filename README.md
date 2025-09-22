@@ -1,22 +1,61 @@
 # ubuntu-autoinstall
 
-Create an ISO for Ubuntu LTS unattended auto-install.
+This script automates the creation of a custom Ubuntu Server autoinstall ISO.
+It downloads the official Ubuntu live server image, extracts its contents,
+injects preconfigured `meta-data` and `user-data` files for cloud-init,
+patches the GRUB menu to add an unattended installation option, and rebuilds
+a bootable ISO with support for both BIOS and UEFI. The result is a self-contained
+image (`ubuntu-<version>-autoinstall.iso`) that installs Ubuntu Server
+automatically with no manual input required.
 
 ### Goals
 
-- Create an ISO that boots itself with a cloud-config auto-installer.
+- Build a self-contained, bootable Ubuntu Server ISO with automated
+installation (unattended setup) enabled via pre-supplied cloud-init configs.
 - Publish examples of cloud-config files for BIOS and UEFI boot with LVM.
 
-### Required packages (Ubuntu)
+### Required Packages (Ubuntu)
 
 - curl
 - p7zip-full
 - p7zip-rar
 - xorriso
 
-### Build
+## What This Script Does
 
-The `create-iso.sh` script downloads a version of the Ubuntu LTS ISO, extracts the contents, adds a cloud-config with meta-data.yml, user-data.yml, and a grub.cfg entry. The script then creates a new, bootable ISO.
+1. **Configuration**
+   - Targets a specific Ubuntu version (`24.04.3` by default).
+   - Defines input ISO and output ISO names.
+
+2. **Dependency & Input Checks**
+   - Ensures required tools (`curl`, `7z`, `xorriso`) are installed.
+   - Verifies that `meta-data.yml` and `user-data.yml` exist (used for cloud-init autoinstall).
+
+3. **Download the Base ISO**
+   - Fetches the official Ubuntu live server ISO from `releases.ubuntu.com`, resuming if interrupted.
+
+4. **Extract ISO Contents**
+   - Unpacks the ISO into a working directory with `7z`.
+   - Moves boot-related files into place.
+
+5. **Add Autoinstall Config Files**
+   - Copies `meta-data.yml` and `user-data.yml` into `/server/` inside the ISO structure,
+where cloud-init looks for them.
+
+6. **Patch the GRUB Boot Menu**
+   - Inserts a new boot menu entry called **"Ubuntu Server Autoinstall"**.
+   - Configures it to boot with `autoinstall` mode and use the NoCloud data source
+(`ds=nocloud;s=/cdrom/server/`).
+
+7. **Rebuild ISO with Boot Support**
+   - Uses `xorriso` to generate a new ISO that supports both BIOS and UEFI boot.
+   - Preserves original boot loaders and adds GPT/MBR partition info for bootability.
+
+8. **Final Output**
+   - Produces a bootable custom ISO named `ubuntu-<version>-autoinstall.iso`.
+   - This ISO can automatically install Ubuntu Server using the provided autoinstall config.
+
+### Build
 
 To build an ISO:
 
@@ -27,8 +66,6 @@ To build an ISO:
 The `user-data-bios+efi.yml` file auto-configures itself for either BIOS *or* UEFI, not both.
 
 The `user-data.yml` file creates a system which should look something like the following (40GB test run):
-
-The `make-cidata.sh` script creates a floppy image for cloud-init and `ds=nocloud`.
 
 ```
 ubuntu@ubuntu:~$ lsblk /dev/sda
@@ -51,7 +88,21 @@ ubuntu@ubuntu:~$ sudo pvs
 
 ```
 
+### Cloud-init Data on Separate Media
+
+The `make-cidata.sh` script creates a floppy image for cloud-init.
+The script creates `cidata.img`.
+Next, change this line in the `create-iso.sh` script from
+```
+    linux   /casper/vmlinuz autoinstall ds=nocloud\\;s=/cdrom/server/  ---
+```
+to
+```
+    linux   /casper/vmlinuz autoinstall ds=nocloud  ---
+```
+
 ### References
 
 https://en.wikipedia.org/wiki/GUID_Partition_Table#Partition_type_GUIDs
 https://askubuntu.com/questions/1403546/ubuntu-22-04-build-iso-both-mbr-and-efi
+
