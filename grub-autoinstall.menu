@@ -1,0 +1,5 @@
+menuentry "Ubuntu Server Autoinstall" {
+    set     gfxpayload=keep
+    linux   /casper/vmlinuz autoinstall ds=nocloud\;s=/cdrom/server/  ---
+    initrd  /casper/initrd
+}
