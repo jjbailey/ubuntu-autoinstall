@@ -57,6 +57,7 @@ make
 ```
 
 This command:
+
 - Downloads the Ubuntu server ISO
 - Extracts it
 - Adds autoinstall files
@@ -76,10 +77,12 @@ sudo make cidata
 **Output**: `cidata.img` (1.44MB VFAT-formatted floppy image)
 
 **Contents**:
+
 - `meta-data`
 - `user-data`
 
 Use this image as a secondary disk ("cidata") in your hypervisor for NoCloud-based installs. For example:
+
 - **Proxmox**: Add as a "floppy" to the VM
 - **QEMU**: Use with `-drive file=cidata.img,if=floppy,format=raw,readonly=on`
 
@@ -115,12 +118,11 @@ menuentry "Ubuntu Server Autoinstall" {
 
 ### References
 
-https://en.wikipedia.org/wiki/GUID_Partition_Table#Partition_type_GUIDs
-https://askubuntu.com/questions/1403546/ubuntu-22-04-build-iso-both-mbr-and-efi
+<https://en.wikipedia.org/wiki/GUID_Partition_Table#Partition_type_GUIDs>
+<https://askubuntu.com/questions/1403546/ubuntu-22-04-build-iso-both-mbr-and-efi>
 
 ## Author, License, and Disclaimer
 
 - **Author**: Copyright (c) 2023-2025 Jack Bailey
 - **License**: MIT
 - **Disclaimer**: Use at your own risk!
-
