@@ -27,6 +27,7 @@ autoinstall:
   ssh:
     allow-pw: true
     install-server: true
+    ssh_genkeytypes: [rsa, ed25519]
 
   apt:
     geoip: true
