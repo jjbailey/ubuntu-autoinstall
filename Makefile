@@ -59,7 +59,7 @@ patch: $(ISODIR)/source-files/boot/grub/grub.cfg addfiles grub-autoinstall.menu
         tail -n +$$FIRST_ENTRY $$GRUB_CFG >> $$GRUB_CFG.new; \
         mv $$GRUB_CFG.new $$GRUB_CFG; \
         echo "Patched GRUB menu"; \
-else \
+    else \
         echo "GRUB already patched."; \
     fi
 
