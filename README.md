@@ -126,4 +126,4 @@ menuentry "Ubuntu Server Autoinstall" {
 
 - **Author**: Copyright (c) 2023-2025 Jack Bailey
 - **License**: MIT
-- **Disclaimer**: Use at your own risk!
+- **Disclaimer**: [Use at your own risk!](https://github.com/jjbailey/ubuntu-autoinstall/blob/main/MAINTENANCE-TERMS.md)
