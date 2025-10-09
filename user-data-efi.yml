@@ -30,10 +30,7 @@ autoinstall:
     ssh_genkeytypes: [rsa, ed25519]
 
   apt:
-    geoip: true
-    primary:
-      - arches: [default]
-        uri: http://us.archive.ubuntu.com/ubuntu/
+    preserve_sources_list: true
 
   packages:
     - build-essential
