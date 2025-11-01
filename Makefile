@@ -31,7 +31,7 @@ $(ISO):
 
 extract: $(ISODIR)/source-files/boot/grub/grub.cfg
 
-$(ISODIR)/source-files/boot/grub/grub.cfg: $(ISO)
+$(ISODIR)/source-files/boot/grub/grub.cfg: $(ISO) grub-autoinstall.menu
 	rm -rf $(ISODIR)
 	mkdir -p $(ISODIR)/source-files
 	cd $(ISODIR) && 7z x -y "$(PROJECT_HOME)/$(ISO)" -osource-files
@@ -50,18 +50,18 @@ $(ISODIR)/source-files/server/meta-data: meta-data.yml | extract
 
 patch: $(ISODIR)/source-files/boot/grub/grub.cfg addfiles grub-autoinstall.menu
 	@GRUB_CFG="$(ISODIR)/source-files/boot/grub/grub.cfg"; \
-    MENU_IN="$(PROJECT_HOME)/grub-autoinstall.menu"; \
-    if ! grep -q "Ubuntu Server Autoinstall" $$GRUB_CFG; then \
-        FIRST_ENTRY=$$(grep -n -m1 '^menuentry' $$GRUB_CFG | cut -d: -f1); \
-        INSERT_LINE=$$(($$FIRST_ENTRY - 1)); \
-        head -n $$INSERT_LINE $$GRUB_CFG > $$GRUB_CFG.new; \
-        cat $$MENU_IN >> $$GRUB_CFG.new; \
-        tail -n +$$FIRST_ENTRY $$GRUB_CFG >> $$GRUB_CFG.new; \
-        mv $$GRUB_CFG.new $$GRUB_CFG; \
-        echo "Patched GRUB menu"; \
-    else \
-        echo "GRUB already patched."; \
-    fi
+	MENU_IN="$(PROJECT_HOME)/grub-autoinstall.menu"; \
+	if ! grep -q "Ubuntu Server Autoinstall" $$GRUB_CFG; then \
+	    FIRST_ENTRY=$$(grep -n -m1 '^menuentry' $$GRUB_CFG | cut -d: -f1); \
+	    INSERT_LINE=$$(($$FIRST_ENTRY - 1)); \
+	    head -n $$INSERT_LINE $$GRUB_CFG > $$GRUB_CFG.new; \
+	    cat $$MENU_IN >> $$GRUB_CFG.new; \
+	    tail -n +$$FIRST_ENTRY $$GRUB_CFG >> $$GRUB_CFG.new; \
+	    mv $$GRUB_CFG.new $$GRUB_CFG; \
+	    echo "Patched GRUB menu"; \
+else \
+	    echo "GRUB already patched."; \
+	fi
 
 grub-autoinstall.menu:
 	@echo "Please create a grub-autoinstall.menu file with your custom GRUB menu entries." ; exit 1
@@ -109,3 +109,4 @@ cidata: meta-data.yml user-data.yml
 
 clean:
 	rm -rf $(ISODIR) $(NEWISO) $(ISO) $(CIDATA)
+
