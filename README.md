@@ -14,6 +14,12 @@ All processes are managed through a single `Makefile`.
 - Non-interactive scripts: controlled entirely via `make`
 - Safe floppy image production: uses a temporary mount point and cleans up after errors
 
+## Typical Use Cases
+
+- Provisioning multiple Ubuntu servers quickly and consistently in a datacenter or virtualized environment
+- Automated lab or testbed setup
+- Infrastructure as Code (IaC) deployments
+
 ## Requirements
 
 ### Ubuntu Host Packages
@@ -41,7 +47,7 @@ Provide the following files in your project directory:
 ```text
 menuentry "Ubuntu Server Autoinstall" {
     set gfxpayload=keep
-    linux /casper/vmlinuz autoinstall ds=nocloud;s=/cdrom/server/ ---
+    linux /casper/vmlinuz autoinstall ds=nocloud\;s=/cdrom/server/ ---
     initrd /casper/initrd
 }
 ```
@@ -108,6 +114,12 @@ menuentry "Ubuntu Server Autoinstall" {
     linux /casper/vmlinuz autoinstall ds=nocloud ---
     initrd /casper/initrd
 }
+```
+
+When the cloud-init files are on a floppy, some documentation recommends setting the nocloud device:
+
+```text
+    linux /casper/vmlinuz autoinstall ds=nocloud\;s=/dev/fd0/ ---
 ```
 
 ## Troubleshooting
