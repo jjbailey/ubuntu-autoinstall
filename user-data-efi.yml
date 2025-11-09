@@ -60,15 +60,8 @@ autoinstall:
         ptable: gpt
         wipe: superblock-recursive
 
-      - id: grub_reserved
-        number: 1
-        type: partition
-        device: root-disk
-        flag: bios_grub
-        size: 1M
-
       - id: efi_boot
-        number: 2
+        number: 1
         type: partition
         grub_device: true
         device: root-disk
@@ -76,7 +69,7 @@ autoinstall:
         size: 1G
 
       - id: lvm_part
-        number: 3
+        number: 2
         type: partition
         device: root-disk
         preserve: false
