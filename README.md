@@ -36,11 +36,11 @@ sudo apt install curl p7zip-full xorriso dosfstools
 
 Provide the following files in your project directory:
 
-| File                  | Purpose                                                                 |
-|-----------------------|-------------------------------------------------------------------------|
-| `meta-data.yml`       | Cloud-init meta-data file (used by both ISO and floppy targets)         |
-| `user-data.yml`       | Cloud-init user-data file (used by both ISO and floppy targets)         |
-| `grub-autoinstall.menu` | GRUB menu entries for the autoinstall ISO                             |
+| File                    | Purpose                                                                 |
+|-------------------------|-------------------------------------------------------------------------|
+| `meta-data.yml`         | Cloud-init meta-data file (used by both ISO and floppy targets)         |
+| `user-data.yml`         | Cloud-init user-data file (used by both ISO and floppy targets)         |
+| `grub-autoinstall.menu` | GRUB menu entries for the autoinstall ISO                               |
 
 ### Example `grub-autoinstall.menu`
 
@@ -120,6 +120,31 @@ When the cloud-init files are on a floppy, some documentation recommends setting
 
 ```text
     linux /casper/vmlinuz autoinstall ds=nocloud\;s=/dev/fd0/ ---
+```
+
+### Example iPXE Menu Entry
+
+The Ubuntu Autoinstall ISO can be used in a iPXE setup.  The following iPXE
+menu uses the cloud-init user-data file in the uai directory on an iPXE server:
+
+```text
+/tftpboot/uai
+├── /tftpboot/uai/initrd
+├── /tftpboot/uai/server
+│   ├── /tftpboot/uai/server/meta-data
+│   └── /tftpboot/uai/server/user-data
+├── /tftpboot/uai/uai.iso
+└── /tftpboot/uai/vmlinuz
+```
+
+```text
+:uai
+kernel http://10.0.0.6/uai/vmlinuz
+initrd http://10.0.0.6/uai/initrd
+imgargs vmlinuz initrd=initrd ip=dhcp \
+    url=http://10.0.0.6/uai/uai.iso autoinstall \
+    cloud-config-url=http://10.0.0.6/uai/server/user-data ---
+boot
 ```
 
 ## Troubleshooting

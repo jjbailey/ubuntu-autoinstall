@@ -13,7 +13,7 @@ autoinstall:
     hostname: ubuntu
     username: ubuntu
     realname: Ubuntu
-    password: $5$28427$QmhqAoZBCY594ucq7sfTgTyhhlpV2hW4LeGcSXvIKQA
+    password: $6$rbCRwNjOuZE.pxYD$Lj0WBvUnVX4gC4FBCGqU1ZGRf0tCeGT8rmfIMniJ/Xkb8HZLxa2lOPBPrfDy5HzJVX0MzD3XPW2YTC3XMCgcB1
 
   network:
     version: 2
