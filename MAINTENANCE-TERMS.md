@@ -1,6 +1,6 @@
 # Maintenance Terms
 
-Current as of 2025
+Current as of 2026
 
 The code, text, and data in this repository are provided as-is under
 In terms of the repository's LICENSE file, as a gift to the commons
