@@ -161,6 +161,6 @@ boot
 
 ## Author, License, and Disclaimer
 
-- **Author**: Copyright (c) 2023-2025 Jack Bailey
+- **Author**: Copyright (c) 2023-2026 Jack Bailey
 - **License**: MIT
 - **Disclaimer**: [Use at your own risk!](https://github.com/jjbailey/ubuntu-autoinstall/blob/main/MAINTENANCE-TERMS.md)
