@@ -40,13 +40,13 @@ floppy image as a loop device.
 
 Provide the following files in your project directory:
 
-| File                    | Purpose                                              |
-|-------------------------|------------------------------------------------------|
-| `meta-data.yml`         | Cloud-init meta-data file (used by both ISO and      |
-|                         | floppy targets)                                      |
-| `user-data.yml`         | Cloud-init user-data file (used by both ISO and      |
-|                         | floppy targets)                                      |
-| `grub-autoinstall.menu` | GRUB menu entries for the autoinstall ISO            |
+| File                    | Purpose                                         |
+| ----------------------- | ----------------------------------------------- |
+| `meta-data.yml`         | Cloud-init meta-data file (used by both ISO and |
+|                         | floppy targets)                                 |
+| `user-data.yml`         | Cloud-init user-data file (used by both ISO and |
+|                         | floppy targets)                                 |
+| `grub-autoinstall.menu` | GRUB menu entries for the autoinstall ISO       |
 
 The repo includes three `user-data` variants to choose from:
 
@@ -148,7 +148,7 @@ setting the nocloud device:
 
 ### Example iPXE Menu Entry
 
-The Ubuntu Autoinstall ISO can be used in a iPXE setup.  The following iPXE
+The Ubuntu Autoinstall ISO can be used in a iPXE setup. The following iPXE
 menu uses the cloud-init user-data file in the uai directory on an iPXE server:
 
 ```text
@@ -184,10 +184,10 @@ boot
 
 <https://en.wikipedia.org/wiki/GUID_Partition_Table#Partition_type_GUIDs>
 
-<https://askubuntu.com/questions/1403546/ubuntu-22-04-build-iso-both-mbr-and-efi>
+<https://askubuntu.com/q/1403546>
 
 ## Author, License, and Disclaimer
 
 - **Author**: Copyright (c) 2023-2026 Jack Bailey
 - **License**: MIT
-- **Disclaimer**: [Use at your own risk!](https://github.com/jjbailey/ubuntu-autoinstall/blob/main/MAINTENANCE-TERMS.md)
+- **Disclaimer**: [Use at your own risk!](MAINTENANCE-TERMS.md)
