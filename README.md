@@ -10,11 +10,10 @@ All processes are managed through a single `Makefile`.
 
 ## Features
 
-- Automatic dependency and file checks
+- Automatic dependency checks for ISO builds and required-file checks
 - Customizable GRUB menu
 - Non-interactive scripts: controlled entirely via `make`
-- Safe floppy image production: uses a temporary mount point and cleans
-  up after errors
+- VFAT floppy image production using a temporary mount point
 
 ## Typical Use Cases
 
@@ -86,7 +85,7 @@ This command:
 - Extracts it
 - Adds autoinstall files
 - Patches GRUB
-- Creates `ubuntu-24.04.4-autoinstall.iso`
+- Creates `ubuntu-26.04-autoinstall.iso` by default
 
 You can boot this ISO in a virtual machine or on physical hardware for
 an unattended installation.
@@ -123,7 +122,7 @@ make clean
 ## Customization
 
 - **Ubuntu Release**: Edit `VERSION` in the `Makefile` to change the
-  Ubuntu release.
+  Ubuntu release. The current default is `26.04`.
 - **GRUB Menu**: Modify `grub-autoinstall.menu` to add or edit GRUB menu
   entries, including different kernel arguments for multiple install modes.
 - **Cloud-Init Configuration**: Use valid cloud-init syntax in
@@ -173,8 +172,9 @@ boot
 
 ## Troubleshooting
 
-- **Missing Dependencies**: The first run checks for required commands.
-  Install any missing packages as indicated in error messages.
+- **Missing Dependencies**: The default `make` target checks for required
+  commands before building the ISO. The `cidata` target assumes the required
+  host tools are already installed.
 - **Root Privileges**: If you see "must be run as root" when building
   `cidata`, use `sudo make cidata`.
 - **Autoinstall Issues**: If the VM does not detect the autoinstall from
