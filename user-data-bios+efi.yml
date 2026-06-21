@@ -21,7 +21,7 @@ autoinstall:
     ethernets:
       id0:
         match:
-          name: e*0
+          name: e*
         dhcp4: true
 
   ssh:
@@ -42,9 +42,19 @@ autoinstall:
   early-commands:
     - |
       if [ -e '/sys/firmware/efi' ] ; then
-        sed -i -e 's,GRUB_DEV,true,' -e 's,BOOT_FS,vfat,' -e 's,BOOT_PATH,/boot/efi,' /autoinstall.yaml
+        sed -i \
+          -e 's,GRUB_DEV,true,' \
+          -e 's,BOOT_FS,vfat,' \
+          -e 's,BOOT_PATH,/boot/efi,' \
+          -e 's,BOOT_FLAG,boot,' \
+          /autoinstall.yaml
       else
-        sed -i -e 's,GRUB_DEV,false,' -e 's,BOOT_FS,ext4,' -e 's,BOOT_PATH,/boot,' /autoinstall.yaml
+        sed -i \
+          -e 's,GRUB_DEV,false,' \
+          -e 's,BOOT_FS,ext4,' \
+          -e 's,BOOT_PATH,/boot,' \
+          -e '/flag: BOOT_FLAG/d' \
+          /autoinstall.yaml
       fi
       true
 
@@ -79,6 +89,7 @@ autoinstall:
       - id: os_boot
         number: 2
         type: partition
+        flag: BOOT_FLAG
         grub_device: GRUB_DEV
         device: root-disk
         preserve: false
