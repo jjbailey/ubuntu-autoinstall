@@ -21,7 +21,7 @@ autoinstall:
     ethernets:
       id0:
         match:
-          name: e*0
+          name: e*
         dhcp4: true
 
   ssh:
@@ -63,6 +63,7 @@ autoinstall:
       - id: efi_boot
         number: 1
         type: partition
+        flag: boot
         grub_device: true
         device: root-disk
         preserve: false

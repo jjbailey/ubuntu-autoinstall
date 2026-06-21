@@ -21,7 +21,7 @@ autoinstall:
     ethernets:
       id0:
         match:
-          name: e*0
+          name: e*
         dhcp4: true
 
   ssh:
