@@ -6,6 +6,8 @@ ISO_URL := https://releases.ubuntu.com/$(VERSION)/$(ISO)
 ISODIR := ubuntu-$(VERSION)-autoinstall
 NEWISO := $(ISODIR).iso
 PROJECT_HOME := $(CURDIR)
+USER_DATA ?= user-data.yml
+META_DATA ?= meta-data.yml
 
 CIDATA := cidata.img
 
@@ -21,8 +23,8 @@ check-deps:
 	done
 
 check-files:
-	@test -f meta-data.yml || { echo "Missing meta-data.yml"; exit 1; }
-	@test -f user-data.yml  || { echo "Missing user-data.yml"; exit 1; }
+	@test -f "$(META_DATA)" || { echo "Missing $(META_DATA)"; exit 1; }
+	@test -f "$(USER_DATA)" || { echo "Missing $(USER_DATA)"; exit 1; }
 	@test -f grub-autoinstall.menu || { echo "Missing grub-autoinstall.menu"; exit 1; }
 
 download: $(ISO)
@@ -40,27 +42,27 @@ $(ISODIR)/source-files/boot/grub/grub.cfg: $(ISO) grub-autoinstall.menu
 
 addfiles: $(ISODIR)/source-files/server/user-data $(ISODIR)/source-files/server/meta-data
 
-$(ISODIR)/source-files/server/user-data: user-data.yml | extract
+$(ISODIR)/source-files/server/user-data: $(USER_DATA) | extract
 	mkdir -p $(ISODIR)/source-files/server
-	cp -p user-data.yml $(ISODIR)/source-files/server/user-data
+	cp -p "$(USER_DATA)" $(ISODIR)/source-files/server/user-data
 
-$(ISODIR)/source-files/server/meta-data: meta-data.yml | extract
+$(ISODIR)/source-files/server/meta-data: $(META_DATA) | extract
 	mkdir -p $(ISODIR)/source-files/server
-	cp -p meta-data.yml $(ISODIR)/source-files/server/meta-data
+	cp -p "$(META_DATA)" $(ISODIR)/source-files/server/meta-data
 
 patch: $(ISODIR)/source-files/boot/grub/grub.cfg addfiles grub-autoinstall.menu
 	@GRUB_CFG="$(ISODIR)/source-files/boot/grub/grub.cfg"; \
 	MENU_IN="$(PROJECT_HOME)/grub-autoinstall.menu"; \
 	if ! grep -q "Ubuntu Server Autoinstall" $$GRUB_CFG; then \
-	    FIRST_ENTRY=$$(grep -n -m1 '^menuentry' $$GRUB_CFG | cut -d: -f1); \
-	    INSERT_LINE=$$(($$FIRST_ENTRY - 1)); \
-	    head -n $$INSERT_LINE $$GRUB_CFG > $$GRUB_CFG.new; \
-	    cat $$MENU_IN >> $$GRUB_CFG.new; \
-	    tail -n +$$FIRST_ENTRY $$GRUB_CFG >> $$GRUB_CFG.new; \
-	    mv $$GRUB_CFG.new $$GRUB_CFG; \
-	    echo "Patched GRUB menu"; \
+		FIRST_ENTRY=$$(grep -n -m1 '^menuentry' $$GRUB_CFG | cut -d: -f1); \
+		INSERT_LINE=$$(($$FIRST_ENTRY - 1)); \
+		head -n $$INSERT_LINE $$GRUB_CFG > $$GRUB_CFG.new; \
+		cat $$MENU_IN >> $$GRUB_CFG.new; \
+		tail -n +$$FIRST_ENTRY $$GRUB_CFG >> $$GRUB_CFG.new; \
+		mv $$GRUB_CFG.new $$GRUB_CFG; \
+		echo "Patched GRUB menu"; \
 	else \
-	    echo "GRUB already patched."; \
+		echo "GRUB already patched."; \
 	fi
 
 grub-autoinstall.menu:
@@ -68,29 +70,29 @@ grub-autoinstall.menu:
 
 $(NEWISO): patch
 	cd $(ISODIR)/source-files && xorriso -as mkisofs -r \
-	-V "Ubuntu-Server $(VERSION) LTS AUTO" \
-	-o "$(PROJECT_HOME)/$(NEWISO)" \
-	--grub2-mbr ../BOOT/1-Boot-NoEmul.img \
-	-partition_offset 16 \
-	--mbr-force-bootable \
-	-append_partition 2 28732ac11ff8d211ba4b00a0c93ec93b ../BOOT/2-Boot-NoEmul.img \
-	-appended_part_as_gpt \
-	-iso_mbr_part_type a2a0d0ebe5b9334487c068b6b72699c7 \
-	-c /boot.catalog \
-	-b /boot/grub/i386-pc/eltorito.img \
-	-no-emul-boot \
-	-boot-load-size 4 \
-	-boot-info-table \
-	--grub2-boot-info \
-	-eltorito-alt-boot \
-	-e '--interval:appended_partition_2:::' \
-	-no-emul-boot \
-	.
+		-V "Ubuntu-Server $(VERSION) LTS AUTO" \
+		-o "$(PROJECT_HOME)/$(NEWISO)" \
+		--grub2-mbr ../BOOT/1-Boot-NoEmul.img \
+		-partition_offset 16 \
+		--mbr-force-bootable \
+		-append_partition 2 28732ac11ff8d211ba4b00a0c93ec93b ../BOOT/2-Boot-NoEmul.img \
+		-appended_part_as_gpt \
+		-iso_mbr_part_type a2a0d0ebe5b9334487c068b6b72699c7 \
+		-c /boot.catalog \
+		-b /boot/grub/i386-pc/eltorito.img \
+		-no-emul-boot \
+		-boot-load-size 4 \
+		-boot-info-table \
+		--grub2-boot-info \
+		-eltorito-alt-boot \
+		-e '--interval:appended_partition_2:::' \
+		-no-emul-boot \
+		.
 
 # -- Cloud-Init VFAT floppy builder --
 .PHONY: cidata
 
-cidata: meta-data.yml user-data.yml
+cidata: $(META_DATA) $(USER_DATA)
 	@if [ "$$(id -u)" -ne 0 ]; then \
 		echo "This rule must be run as root (sudo make cidata)"; exit 1; \
 	fi
@@ -99,8 +101,8 @@ cidata: meta-data.yml user-data.yml
 	mkfs.vfat -n cidata $(CIDATA)
 	MNTDIR=$$(mktemp -d /tmp/cidata.XXXXXX); \
 	mount -o loop $(CIDATA) $$MNTDIR; \
-	cp meta-data.yml $$MNTDIR/meta-data; \
-	cp user-data.yml  $$MNTDIR/user-data; \
+	cp "$(META_DATA)" $$MNTDIR/meta-data; \
+	cp "$(USER_DATA)" $$MNTDIR/user-data; \
 	sync; \
 	umount $$MNTDIR; \
 	if ! fsck.fat -nv $(CIDATA); then echo "Image integrity check FAILED!"; exit 1; fi; \
@@ -109,4 +111,3 @@ cidata: meta-data.yml user-data.yml
 
 clean:
 	rm -rf $(ISODIR) $(NEWISO) $(ISO) $(CIDATA)
-
