@@ -119,6 +119,20 @@ Run:
 make clean
 ```
 
+### 4. Extract Kernel/Initrd for Netboot (`kernel-extractor.sh`)
+
+`kernel-extractor.sh` mounts an Ubuntu ISO (loopback) and copies out the
+kernel, initrd, and squashfs root filesystem — useful for iPXE or other
+netboot setups where the kernel and initrd are served directly rather than
+booted from an ISO. This script is standalone and not wired into the
+`Makefile`.
+
+```bash
+sudo ./kernel-extractor.sh <path-to.iso> <output-dir>
+```
+
+Requires root (or equivalent loopback-mount privileges) to mount the ISO.
+
 ## Customization
 
 - **Ubuntu Release**: Edit `VERSION` in the `Makefile` to change the
@@ -147,8 +161,10 @@ setting the nocloud device:
 
 ### Example iPXE Menu Entry
 
-The Ubuntu Autoinstall ISO can be used in a iPXE setup. The following iPXE
-menu uses the cloud-init user-data file in the uai directory on an iPXE server:
+The Ubuntu Autoinstall ISO can be used in a iPXE setup. Use
+`kernel-extractor.sh` to pull `vmlinuz` and `initrd` out of the ISO built
+above. The following iPXE menu uses the cloud-init user-data file in the uai
+directory on an iPXE server:
 
 ```text
 /tftpboot/uai
