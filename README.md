@@ -35,6 +35,10 @@ sudo apt install curl p7zip-full xorriso dosfstools
 **Note**: `sudo` is required for `make cidata` to create and mount the
 floppy image as a loop device.
 
+You also need roughly **8 GB free** on the build host: about 3 GB for the
+downloaded ISO, the same again for the extracted tree, and the rebuilt ISO on
+top.
+
 ## Preparation
 
 Provide the following files in your project directory:
@@ -58,6 +62,25 @@ Copy the appropriate one to `user-data.yml` before building:
 ```bash
 cp user-data-bios+efi.yml user-data.yml
 ```
+
+The `ubuntu` user's password is `ubuntu`. This is deliberately a **bootstrap
+credential**: these hosts are handed to configuration management immediately
+after install, and the first pass rotates it. Treat the window between first
+boot and that pass as the exposure, and keep provisioning on a trusted
+segment.
+
+If you are not following that workflow, change the hash in the `identity`
+section before deploying — generate a replacement with `openssl passwd -6`.
+
+### Minimum Target Disk Size
+
+The fixed logical volumes total 27 GiB before `lvm_part` (`size: -1`) claims
+anything, so the **install disk** must be at least **28 GiB** — 27 GiB of
+volumes plus a 1 GiB boot partition and the 1 MiB BIOS grub reserve.
+
+A 20 GB VM disk — a natural default — fails during partitioning. This is
+separate from the build-host space noted above. Shrink the `lvm_partition`
+sizes if you want a smaller target.
 
 ### Example `grub-autoinstall.menu`
 
@@ -119,13 +142,22 @@ Run:
 make clean
 ```
 
+`clean` deliberately keeps the downloaded ISO so you do not have to re-fetch
+several GB. Use `make distclean` to remove that as well.
+
 ### 4. Extract Kernel/Initrd for Netboot (`kernel-extractor.sh`)
 
 `kernel-extractor.sh` mounts an Ubuntu ISO (loopback) and copies out the
-kernel, initrd, and squashfs root filesystem — useful for iPXE or other
+kernel, initrd, and every root filesystem image — useful for iPXE or other
 netboot setups where the kernel and initrd are served directly rather than
 booted from an ISO. This script is standalone and not wired into the
 `Makefile`.
+
+It copies **all** `.squashfs` images, not just one. Since roughly 23.04 the
+live-server ISO no longer ships a single `filesystem.squashfs`; it carries a
+layered set (`ubuntu-server-minimal.squashfs`, then
+`ubuntu-server-minimal.ubuntu-server.squashfs`, and so on) that is stacked at
+boot and is useless a layer at a time.
 
 ```bash
 sudo ./kernel-extractor.sh <path-to.iso> <output-dir>
@@ -139,6 +171,12 @@ Requires root (or equivalent loopback-mount privileges) to mount the ISO.
   Ubuntu release. The current default is `26.04`.
 - **GRUB Menu**: Modify `grub-autoinstall.menu` to add or edit GRUB menu
   entries, including different kernel arguments for multiple install modes.
+  Rename the entries freely — the patch rule brackets whatever it inserts
+  between `UBUNTU-AUTOINSTALL-MENU-BEGIN` / `-END` comment markers and
+  rewrites that block on every build, so menu edits are picked up and the
+  entries never accumulate. Do not hand-edit between those markers; the next
+  build discards it. The patch rule also sets `set default="0"` so the
+  autoinstall entry is the one that boots unattended.
 - **Cloud-Init Configuration**: Use valid cloud-init syntax in
   `meta-data.yml` and `user-data.yml`.
 
@@ -189,8 +227,8 @@ boot
 ## Troubleshooting
 
 - **Missing Dependencies**: The default `make` target checks for required
-  commands before building the ISO. The `cidata` target assumes the required
-  host tools are already installed.
+  commands before building the ISO. The `cidata` target checks its own
+  (`mkfs.vfat`, `fsck.fat`, `mount`, `umount`, `dd`).
 - **Root Privileges**: If you see "must be run as root" when building
   `cidata`, use `sudo make cidata`.
 - **Autoinstall Issues**: If the VM does not detect the autoinstall from
