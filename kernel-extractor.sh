@@ -17,6 +17,12 @@ if [[ ! -f $ISO ]] ; then
     exit 1
 fi
 
+if [[ $EUID -ne 0 ]] ; then
+    echo "ERROR: must be run as root -- mounting the ISO needs loopback privileges"
+    echo "       try: sudo $0 $ISO $OUTDIR"
+    exit 1
+fi
+
 mkdir -p "$OUTDIR"
 
 if [ ! -w "$OUTDIR" ] ; then
@@ -35,9 +41,8 @@ cleanup()
 trap cleanup EXIT
 
 echo "[+] Mounting ISO..."
-mount -o loop,ro "$ISO" "$MNT"
 
-if ! mountpoint -q "$MNT" ; then
+if ! mount -o loop,ro "$ISO" "$MNT" ; then
     echo "ERROR: Failed to mount ISO at $MNT"
     exit 1
 fi
@@ -46,10 +51,10 @@ echo "[+] Searching for kernel, initrd, and squashfs root filesystem..."
 
 KERNEL=""
 INITRD=""
-SQUASHFS=""
 KERNEL_COUNT=0
 INITRD_COUNT=0
-SQUASHFS_COUNT=0
+
+SQUASHFS_LIST=()
 
 while IFS= read -r -d '' f ; do
     fname="$(basename "$f")"
@@ -66,11 +71,8 @@ while IFS= read -r -d '' f ; do
             fi
             INITRD_COUNT=$((INITRD_COUNT + 1))
             ;;
-        rootfs.squashfs | filesystem.squashfs)
-            if [ -z "$SQUASHFS" ] ; then
-                SQUASHFS="$f"
-            fi
-            SQUASHFS_COUNT=$((SQUASHFS_COUNT + 1))
+        *.squashfs | install.img)
+            SQUASHFS_LIST+=("$f")
             ;;
     esac
 done < <(find "$MNT" -type f \( \
@@ -80,9 +82,9 @@ done < <(find "$MNT" -type f \( \
     -name 'vmlinux' -o \
     -name 'initrd*' -o \
     -name 'initramfs*' -o \
-    -name 'rootfs.squashfs' -o \
-    -name 'filesystem.squashfs' \
-    \) -print0)
+    -name '*.squashfs' -o \
+    -name 'install.img' \
+    \) -print0 | sort -z)
 
 if [[ -z $KERNEL || -z $INITRD ]] ; then
     echo "[-] Failed to locate kernel or initrd"
@@ -95,26 +97,27 @@ fi
 if [ "$INITRD_COUNT" -gt 1 ] ; then
     echo "[!] Warning: Multiple initrd files found ($INITRD_COUNT), using $INITRD"
 fi
-if [ "$SQUASHFS_COUNT" -gt 1 ] ; then
-    echo "[!] Warning: Multiple squashfs files found ($SQUASHFS_COUNT), using $SQUASHFS"
-fi
 
 echo "[+] Kernel : $KERNEL"
 echo "[+] Initrd : $INITRD"
-if [[ -n $SQUASHFS ]] ; then
-    echo "[+] Found squashfs: $SQUASHFS"
+if [ "${#SQUASHFS_LIST[@]}" -gt 0 ] ; then
+    echo "[+] Root filesystem images (${#SQUASHFS_LIST[@]}):"
+    for f in "${SQUASHFS_LIST[@]}" ; do
+        echo "      ${f#"$MNT"/}"
+    done
 else
-    echo "[-] rootfs.squashfs/filesystem.squashfs not found (continuing)"
+    echo "[-] No .squashfs or install.img found (continuing)"
 fi
 
 echo "[+] Checking available disk space..."
 TOTAL_SIZE=0
 TOTAL_SIZE=$((TOTAL_SIZE + $(stat -c%s "$KERNEL")))
 TOTAL_SIZE=$((TOTAL_SIZE + $(stat -c%s "$INITRD")))
-if [ -n "$SQUASHFS" ] ; then
-    TOTAL_SIZE=$((TOTAL_SIZE + $(stat -c%s "$SQUASHFS")))
-fi
-AVAIL_KB=$(df -k "$OUTDIR" | awk 'NR==2 {print $4}')
+for f in ${SQUASHFS_LIST[@]+"${SQUASHFS_LIST[@]}"} ; do
+    TOTAL_SIZE=$((TOTAL_SIZE + $(stat -c%s "$f")))
+done
+
+AVAIL_KB=$(df -Pk "$OUTDIR" | awk 'NR==2 {print $4}')
 TOTAL_SIZE_KB=$(((TOTAL_SIZE + 1023) / 1024))
 if [ "$AVAIL_KB" -lt "$TOTAL_SIZE_KB" ] ; then
     echo "ERROR: Not enough space in $OUTDIR (need ${TOTAL_SIZE_KB} KB, available ${AVAIL_KB} KB)"
@@ -127,22 +130,24 @@ if [ ! -f "$OUTDIR/$(basename "$KERNEL")" ] || [ "$(stat -c%s "$KERNEL")" != "$(
     echo "ERROR: Failed to copy kernel"
     exit 1
 fi
+
 cp -p "$INITRD" "$OUTDIR"
 if [ ! -f "$OUTDIR/$(basename "$INITRD")" ] || [ "$(stat -c%s "$INITRD")" != "$(stat -c%s "$OUTDIR/$(basename "$INITRD")")" ] ; then
     echo "ERROR: Failed to copy initrd"
     exit 1
 fi
-if [[ -n $SQUASHFS ]] ; then
-    cp -p "$SQUASHFS" "$OUTDIR"
-    if [ ! -f "$OUTDIR/$(basename "$SQUASHFS")" ] || [ "$(stat -c%s "$SQUASHFS")" != "$(stat -c%s "$OUTDIR/$(basename "$SQUASHFS")")" ] ; then
-        echo "ERROR: Failed to copy squashfs"
+
+for f in ${SQUASHFS_LIST[@]+"${SQUASHFS_LIST[@]}"} ; do
+    cp -p "$f" "$OUTDIR"
+    if [ ! -f "$OUTDIR/$(basename "$f")" ] || [ "$(stat -c%s "$f")" != "$(stat -c%s "$OUTDIR/$(basename "$f")")" ] ; then
+        echo "ERROR: Failed to copy $(basename "$f")"
         exit 1
     fi
-fi
+done
 
 echo "[+] Done."
 echo "Kernel: $OUTDIR/$(basename "$KERNEL")"
 echo "Initrd: $OUTDIR/$(basename "$INITRD")"
-if [[ -n $SQUASHFS ]] ; then
-    echo "SquashFS: $OUTDIR/$(basename "$SQUASHFS")"
-fi
+for f in ${SQUASHFS_LIST[@]+"${SQUASHFS_LIST[@]}"} ; do
+    echo "Root FS: $OUTDIR/$(basename "$f")"
+done
