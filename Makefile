@@ -1,6 +1,6 @@
 # Makefile: Ubuntu Autoinstall ISO Builder & Cloud-Init VFAT Floppy (cidata.img)
 
-VERSION := 26.04
+VERSION := 26.04.1
 ISO := ubuntu-$(VERSION)-live-server-amd64.iso
 ISO_URL := https://releases.ubuntu.com/$(VERSION)/$(ISO)
 ISODIR := ubuntu-$(VERSION)-autoinstall
