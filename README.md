@@ -3,6 +3,7 @@
 This project simplifies the creation of:
 
 - A custom Ubuntu Autoinstall ISO for fully automated installations
+- A USB boot image (`.img`) with the same capabilities as the ISO
 - A VFAT-formatted "cidata" floppy image with cloud-init configuration
   (NoCloud data source)
 
@@ -13,6 +14,7 @@ All processes are managed through a single `Makefile`.
 - Automatic dependency checks for ISO builds and required-file checks
 - Customizable GRUB menu
 - Non-interactive scripts: controlled entirely via `make`
+- USB boot image from the same ISO build (`make img`), ready for `dd`
 - VFAT floppy image production using a temporary mount point
 
 ## Typical Use Cases
@@ -113,7 +115,31 @@ This command:
 You can boot this ISO in a virtual machine or on physical hardware for
 an unattended installation.
 
-### 2. Create the Cloud-Init "cidata" VFAT Floppy Image
+### 2. Create a USB Boot Image
+
+Run:
+
+```bash
+make img
+```
+
+**Output**: `ubuntu-26.04.1-autoinstall.img`
+
+The ISO is already a BIOS+UEFI hybrid image, so the `.img` is the same bytes
+as the ISO (it builds the ISO first if needed). Write it to a USB stick with
+`dd`, using at least a 4 GB stick:
+
+```bash
+sudo dd if=ubuntu-26.04.1-autoinstall.img of=/dev/sdX bs=4M conv=fsync status=progress
+```
+
+Check the device name with `lsblk` first -- **this destroys everything on
+the stick**. Write the image directly; tools that re-wrap the ISO (Ventoy,
+Rufus ISO mode) can break the `/cdrom/server/` autoinstall path. The installer
+mounts the stick at `/cdrom` just as it does a CD, so no GRUB changes are
+needed.
+
+### 3. Create the Cloud-Init "cidata" VFAT Floppy Image
 
 Run (requires root privileges):
 
@@ -134,7 +160,7 @@ NoCloud-based installs. For example:
 - **Proxmox**: Add as a "floppy" to the VM
 - **QEMU**: Use with `-drive file=cidata.img,if=floppy,format=raw,readonly=on`
 
-### 3. Clean Up Build Artifacts
+### 4. Clean Up Build Artifacts
 
 Run:
 
@@ -145,7 +171,7 @@ make clean
 `clean` deliberately keeps the downloaded ISO so you do not have to re-fetch
 several GB. Use `make distclean` to remove that as well.
 
-### 4. Extract Kernel/Initrd for Netboot (`kernel-extractor.sh`)
+### 5. Extract Kernel/Initrd for Netboot (`kernel-extractor.sh`)
 
 `kernel-extractor.sh` mounts an Ubuntu ISO (loopback) and copies out the
 kernel, initrd, and every root filesystem image — useful for iPXE or other

@@ -5,6 +5,7 @@ ISO := ubuntu-$(VERSION)-live-server-amd64.iso
 ISO_URL := https://releases.ubuntu.com/$(VERSION)/$(ISO)
 ISODIR := ubuntu-$(VERSION)-autoinstall
 NEWISO := $(ISODIR).iso
+NEWIMG := $(ISODIR).img
 PROJECT_HOME := $(CURDIR)
 USER_DATA ?= user-data.yml
 META_DATA ?= meta-data.yml
@@ -21,7 +22,7 @@ ISO_DEPS  := curl 7z xorriso
 SEED_DEPS := mkfs.vfat mount umount dd fsck.fat
 
 .PHONY: all check-deps check-files clean distclean download extract addfiles \
-        patch cidata
+        patch cidata img
 
 .NOTPARALLEL:
 
@@ -109,6 +110,15 @@ $(NEWISO): $(PATCHSTAMP) $(SRC)/server/user-data $(SRC)/server/meta-data
 		.
 
 
+# USB boot image: the xorriso output is already a BIOS+UEFI hybrid, so the
+# .img is the same bytes as the ISO.  Write it with:
+#   sudo dd if=$(NEWIMG) of=/dev/sdX bs=4M conv=fsync status=progress
+img: $(NEWIMG)
+
+$(NEWIMG): $(NEWISO)
+	ln -sf "$(NEWISO)" "$@"
+	@echo "USB image created: $@ (dd it to the stick; this destroys the stick's contents)"
+
 cidata: $(META_DATA) $(USER_DATA)
 	@for dep in $(SEED_DEPS); do \
 		command -v $$dep >/dev/null 2>&1 || { echo "'$$dep' is not installed"; exit 1; }; \
@@ -137,7 +147,7 @@ cidata: $(META_DATA) $(USER_DATA)
 	@echo "cidata VFAT floppy image created: $(CIDATA)"
 
 clean:
-	rm -rf $(ISODIR) $(NEWISO) $(CIDATA)
+	rm -rf $(ISODIR) $(NEWISO) $(NEWIMG) $(CIDATA)
 
 distclean: clean
 	rm -f $(ISO)
