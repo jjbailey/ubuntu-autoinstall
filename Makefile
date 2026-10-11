@@ -116,7 +116,7 @@ $(NEWISO): $(PATCHSTAMP) $(SRC)/server/user-data $(SRC)/server/meta-data
 img: $(NEWIMG)
 
 $(NEWIMG): $(NEWISO)
-	cp --reflink=auto -f "$(NEWISO)" "$@"
+	ln -sf "$(NEWISO)" "$@"
 	@echo "USB image created: $@ (dd it to the stick; this destroys the stick's contents)"
 
 cidata: $(META_DATA) $(USER_DATA)
